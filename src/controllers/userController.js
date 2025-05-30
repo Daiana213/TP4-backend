@@ -1,212 +1,176 @@
-const User = require('../models/user');
+const Usuario = require('../models/Usuario');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
-// Get all users
+// Obtener todos los usuarios (excluyendo contraseñas)
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.findAll({
-      attributes: { exclude: ['password'] } // Don't send passwords
+    const users = await Usuario.findAll({
+      attributes: { exclude: ['contrasena'] }
     });
     res.status(200).json(users);
   } catch (error) {
-    console.error('Error fetching users:', error);
-    res.status(500).json({ message: 'Error fetching users', error: error.message });
+    console.error('Error al obtener usuarios:', error);
+    res.status(500).json({ message: 'Error al obtener usuarios', error: error.message });
   }
 };
 
-// Create a new user with validation
+// Crear un nuevo usuario con validación
 const createUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { nombre, email, contrasena } = req.body;
 
-    // Basic validation
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: 'Name, email and password are required fields' });
+    if (!nombre || !email || !contrasena) {
+      return res.status(400).json({ message: 'Nombre, email y contraseña son requeridos' });
     }
 
-    // Email format validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({ message: 'Invalid email format' });
-    }
-
-    // Password validation
-    if (password.length < 6) {
-      return res.status(400).json({ message: 'Password must be at least 6 characters long' });
-    }
-
-    // Check if email already exists
-    const existingUser = await User.findOne({ where: { email } });
-    if (existingUser) {
-      return res.status(409).json({ message: 'Email already in use' });
-    }
-
-    // Hash password
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-    // Create new user
-    const newUser = await User.create({
-      name,
-      email,
-      password: hashedPassword
-    });
-
-    // Don't send the password back in the response
-    const userResponse = {
-      id: newUser.id,
-      name: newUser.name,
-      email: newUser.email,
-      createdAt: newUser.createdAt,
-      updatedAt: newUser.updatedAt
-    };
-
-    res.status(201).json({
-      message: 'User created successfully',
-      user: userResponse
-    });
-  } catch (error) {
-    console.error('Error creating user:', error);
-    res.status(500).json({ message: 'Error creating user', error: error.message });
-  }
-};
-
-// Register a new user (specifically for the registration endpoint)
-const registerUser = async (req, res) => {
-  try {
-    const { nombre, email, password } = req.body;
-
-    // Basic validation
-    if (!nombre || !email || !password) {
-      return res.status(400).json({ message: 'Nombre, email y contraseña son campos requeridos' });
-    }
-
-    // Email format validation
+    // Validar formato de email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ message: 'Formato de email inválido' });
     }
 
-    // Password validation
-    if (password.length < 6) {
+    // Validar longitud de la contraseña
+    if (contrasena.length < 6) {
       return res.status(400).json({ message: 'La contraseña debe tener al menos 6 caracteres' });
     }
 
-    // Check if email already exists
-    const existingUser = await User.findOne({ where: { email } });
+    // Verificar si el email ya existe
+    const existingUser = await Usuario.findOne({ where: { email } });
     if (existingUser) {
       return res.status(409).json({ message: 'El email ya está en uso' });
     }
 
-    // Hash password
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    // Hashear la contraseña
+    const hashedPassword = await bcrypt.hash(contrasena, 10);
 
-    // Create new user
-    const newUser = await User.create({
-      name: nombre,
+    // Crear usuario
+    const newUser = await Usuario.create({
+      nombre,
       email,
-      password: hashedPassword
+      contrasena: hashedPassword
     });
 
-    // Don't send the password back in the response
-    const userResponse = {
-      id: newUser.id,
-      name: newUser.name,
-      email: newUser.email,
-      createdAt: newUser.createdAt,
-      updatedAt: newUser.updatedAt
-    };
-
-    res.status(201).json({
-      message: 'Usuario registrado exitosamente',
-      user: userResponse
-    });
+    res.status(201).json({ message: 'Usuario creado exitosamente', usuario: newUser });
   } catch (error) {
-    console.error('Error registering user:', error);
+    console.error('Error al crear usuario:', error);
+    res.status(500).json({ message: 'Error al crear usuario', error: error.message });
+  }
+};
+
+// Registrar usuario
+const registerUser = async (req, res) => {
+  try {
+    const { nombre, email, contrasena } = req.body;
+
+    if (!nombre || !email || !contrasena) {
+      return res.status(400).json({ message: 'Nombre, email y contraseña son requeridos' });
+    }
+
+    const existingUser = await Usuario.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(409).json({ message: 'El email ya está en uso' });
+    }
+
+    const hashedPassword = await bcrypt.hash(contrasena, 10);
+
+    const newUser = await Usuario.create({
+      nombre,
+      email,
+      contrasena: hashedPassword
+    });
+
+    res.status(201).json({ message: 'Usuario registrado exitosamente', usuario: newUser });
+  } catch (error) {
+    console.error('Error al registrar usuario:', error);
     res.status(500).json({ message: 'Error al registrar usuario', error: error.message });
   }
 };
 
-// Validate a user by email and password
+// Validar usuario por email y contraseña
 const validateUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, contrasena } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password are required' });
+    if (!email || !contrasena) {
+      return res.status(400).json({ message: 'Email y contraseña son requeridos' });
     }
 
-    const user = await User.findOne({ where: { email } });
-    
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Compare password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    
-    if (!isPasswordValid) {
-      return res.status(401).json({ message: 'Invalid password' });
-    }
-
-    // Don't send the password back in the response
-    const userResponse = {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt
-    };
-
-    res.status(200).json({
-      message: 'User validated successfully',
-      user: userResponse
+    const user = await Usuario.findOne({
+      where: { email },
+      attributes: ['id', 'nombre', 'email', 'contrasena'] // Asegurar que la contraseña se incluya
     });
+
+    if (!user || !user.contrasena) {
+      return res.status(404).json({ message: 'Usuario no encontrado o sin contraseña válida' });
+    }
+
+    const isPasswordValid = await bcrypt.compare(contrasena, user.contrasena);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Contraseña incorrecta' });
+    }
+
+    res.status(200).json({ message: 'Usuario validado exitosamente', usuario: user });
   } catch (error) {
-    console.error('Error validating user:', error);
-    res.status(500).json({ message: 'Error validating user', error: error.message });
+    console.error('Error al validar usuario:', error);
+    res.status(500).json({ message: 'Error al validar usuario', error: error.message });
   }
 };
 
-// Login user
+// Inicio de sesión con JWT
 const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    console.log('Datos recibidos:', req.body);
 
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password are required' });
+    const { email, contrasena } = req.body;
+
+    if (!email || !contrasena) {
+      return res.status(400).json({ error: 'Email y contraseña son requeridos' });
     }
 
-    const user = await User.findOne({ where: { email } });
-    
+    // Buscar usuario en la base de datos asegurando que la contraseña está incluida
+    const user = await Usuario.findOne({
+      where: { email },
+      attributes: ['id', 'Nombre', 'Email', 'Contrasena']
+    });
+
+    const datos = user.dataValues;
+
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      console.error('Usuario no encontrado:', email);
+      return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
-    // Compare password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    
+    if (!datos.Contrasena) {
+      return res.status(400).json({ error: 'Error en credenciales' });
+    }
+
+    // Comparación segura de contraseñas con bcrypt
+    const isPasswordValid = await bcrypt.compare(contrasena, datos.Contrasena);
     if (!isPasswordValid) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 
-    // Don't send the password back in the response
-    const userResponse = {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt
-    };
+    // Generar token JWT
+    const token = jwt.sign(
+      { userId: user.id, email: user.email },
+      process.env.JWT_SECRET || 'clave_secreta_temporal',
+      { expiresIn: '24h' }
+    );
 
     res.status(200).json({
-      message: 'Login successful',
-      user: userResponse
+      message: 'Inicio de sesión exitoso',
+      usuario: {
+        id: user.id,
+        nombre: user.nombre,
+        email: user.email
+      },
+      token
     });
+
   } catch (error) {
-    console.error('Error logging in:', error);
-    res.status(500).json({ message: 'Error logging in', error: error.message });
+    console.error('Error inesperado en login:', error);
+    res.status(500).json({ error: 'Error interno en el servidor', details: error.message });
   }
 };
 
@@ -217,4 +181,3 @@ module.exports = {
   validateUser,
   loginUser
 };
-

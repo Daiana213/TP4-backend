@@ -9,22 +9,34 @@ Usuario.init({
     primaryKey: true,
     autoIncrement: true
   },
-  Nombre: {
+  nombre: {  // Ajustado para coincidir con el controlador
     type: DataTypes.STRING,
     allowNull: false
   },
-  Email: {
+  email: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true
+    unique: true,
+    validate: {
+      isEmail: true  // Validación integrada en Sequelize
+    }
   },
-  Contrasena: {
+  contrasena: {
     type: DataTypes.STRING,
     allowNull: false
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
   }
 }, {
   sequelize,
-  modelName: 'Usuario'
+  modelName: 'Usuario',
+  timestamps: true // Activa createdAt y updatedAt automáticamente
 });
 
 module.exports = Usuario;
