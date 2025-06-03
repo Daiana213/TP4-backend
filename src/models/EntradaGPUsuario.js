@@ -9,14 +9,6 @@ EntradaGPUsuario.init({
     primaryKey: true,
     autoIncrement: true
   },
-  usuarioId: {
-    type: DataTypes.INTEGER,
-    allowNull: false
-  },
-  granpremioId: {
-    type: DataTypes.INTEGER,
-    allowNull: false
-  },
   resumengeneral: DataTypes.STRING,
   notaspersonales: DataTypes.STRING,
   fechacreacion: DataTypes.DATE,

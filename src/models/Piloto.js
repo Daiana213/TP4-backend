@@ -15,7 +15,7 @@ Piloto.init({
   Pais: DataTypes.STRING,
   Campeonatos: DataTypes.INTEGER,
   Podios: DataTypes.INTEGER,
-  Carreras: DataTypes.INTEGER,
+  TotalCarreras: DataTypes.INTEGER,  // Cambiado de 'Carreras' a 'TotalCarreras'
   Wins: DataTypes.INTEGER
 }, {
   sequelize,

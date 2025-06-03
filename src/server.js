@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const sequelize = require('./config/database');
 const userRoutes = require('./routes/userRoutes');
+const f1Routes = require('./routes/f1Routes');
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(cors());
 
 // Routes - remove the '/api' prefix to match frontend expectations
 app.use('/', userRoutes);
+app.use('/', f1Routes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

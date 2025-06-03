@@ -15,7 +15,7 @@ GranPremio.hasMany(EntradaGPUsuario);
 EntradaGPUsuario.belongsTo(GranPremio);
 
 Piloto.hasMany(Clasificacion);
-Piloto.hasMany(Carrera);
+Piloto.hasMany(Carrera, { as: 'ResultadosCarrera' });  // Especificar un nombre diferente para la asociación
 Piloto.hasMany(Sprint);
 
 Equipo.hasMany(Piloto);

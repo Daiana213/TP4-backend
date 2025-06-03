@@ -131,29 +131,29 @@ const loginUser = async (req, res) => {
     // Buscar usuario en la base de datos asegurando que la contraseña está incluida
     const user = await Usuario.findOne({
       where: { email },
-      attributes: ['id', 'Nombre', 'Email', 'Contrasena']
+      attributes: ['id', 'nombre', 'email', 'contrasena']
     });
-
-    const datos = user.dataValues;
 
     if (!user) {
       console.error('Usuario no encontrado:', email);
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
-    if (!datos.Contrasena) {
+    const datos = user.dataValues;
+
+    if (!datos.contrasena) {
       return res.status(400).json({ error: 'Error en credenciales' });
     }
 
     // Comparación segura de contraseñas con bcrypt
-    const isPasswordValid = await bcrypt.compare(contrasena, datos.Contrasena);
+    const isPasswordValid = await bcrypt.compare(contrasena, datos.contrasena);
     if (!isPasswordValid) {
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 
     // Generar token JWT
     const token = jwt.sign(
-      { userId: user.id, email: user.email },
+      { userId: datos.id, email: datos.email },
       process.env.JWT_SECRET || 'clave_secreta_temporal',
       { expiresIn: '24h' }
     );
@@ -161,9 +161,9 @@ const loginUser = async (req, res) => {
     res.status(200).json({
       message: 'Inicio de sesión exitoso',
       usuario: {
-        id: user.id,
-        nombre: user.nombre,
-        email: user.email
+        id: datos.id,
+        nombre: datos.nombre,
+        email: datos.email
       },
       token
     });
