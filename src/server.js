@@ -34,5 +34,5 @@ app.use((req, res) => {
 // Database connection and server startup
 sequelize.sync().then(() => {
   console.log('Database connected');
-  app.listen(3000, () => console.log('Server running on port 3000'));
+  app.listen(3001, () => console.log('Server running on port 3000'));
 }).catch(error => console.error('Database error:', error));
