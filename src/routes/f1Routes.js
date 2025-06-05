@@ -10,10 +10,17 @@ router.get('/pilotos/:id', F1Controller.getPilotoById);
 router.get('/equipos', F1Controller.getAllEquipos);
 router.get('/equipos/:id', F1Controller.getEquipoById);
 
+// Rutas para el calendario
+router.get('/calendario', F1Controller.getAllGrandesPremios);
+router.get('/calendario/:id', F1Controller.getGranPremioById);
+
 // Rutas para administrador
 router.post('/admin/pilotos', F1Controller.createPiloto);
 router.put('/admin/pilotos/:id', F1Controller.updatePiloto);
 router.post('/admin/equipos', F1Controller.createEquipo);
 router.put('/admin/equipos/:id', F1Controller.updateEquipo);
+router.post('/admin/calendario', F1Controller.createGranPremio);
+router.put('/admin/calendario/:id', F1Controller.updateGranPremio);
+router.delete('/admin/calendario/:id', F1Controller.deleteGranPremio);
 
 module.exports = router;

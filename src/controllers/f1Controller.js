@@ -104,6 +104,69 @@ const F1Controller = {
       console.error('Error al actualizar equipo:', error);
       res.status(500).json({ message: 'Error al actualizar equipo' });
     }
+  },
+
+  getAllGrandesPremios: async (req, res) => {
+    try {
+      const grandesPremios = await GranPremio.findAll({
+        order: [['fecha', 'ASC']]
+      });
+      res.json(grandesPremios);
+    } catch (error) {
+      console.error('Error al obtener grandes premios:', error);
+      res.status(500).json({ message: 'Error al obtener grandes premios' });
+    }
+  },
+
+  getGranPremioById: async (req, res) => {
+    try {
+      const granPremio = await GranPremio.findByPk(req.params.id);
+      if (!granPremio) {
+        return res.status(404).json({ message: 'Gran Premio no encontrado' });
+      }
+      res.json(granPremio);
+    } catch (error) {
+      console.error('Error al obtener gran premio:', error);
+      res.status(500).json({ message: 'Error al obtener gran premio' });
+    }
+  },
+
+  createGranPremio: async (req, res) => {
+    try {
+      const granPremio = await GranPremio.create(req.body);
+      res.status(201).json(granPremio);
+    } catch (error) {
+      console.error('Error al crear gran premio:', error);
+      res.status(500).json({ message: 'Error al crear gran premio' });
+    }
+  },
+
+  updateGranPremio: async (req, res) => {
+    try {
+      const granPremio = await GranPremio.findByPk(req.params.id);
+      if (!granPremio) {
+        return res.status(404).json({ message: 'Gran Premio no encontrado' });
+      }
+      await granPremio.update(req.body);
+      res.json(granPremio);
+    } catch (error) {
+      console.error('Error al actualizar gran premio:', error);
+      res.status(500).json({ message: 'Error al actualizar gran premio' });
+    }
+  },
+
+  deleteGranPremio: async (req, res) => {
+    try {
+      const granPremio = await GranPremio.findByPk(req.params.id);
+      if (!granPremio) {
+        return res.status(404).json({ message: 'Gran Premio no encontrado' });
+      }
+      await granPremio.destroy();
+      res.json({ message: 'Gran Premio eliminado correctamente' });
+    } catch (error) {
+      console.error('Error al eliminar gran premio:', error);
+      res.status(500).json({ message: 'Error al eliminar gran premio' });
+    }
   }
 };
 
