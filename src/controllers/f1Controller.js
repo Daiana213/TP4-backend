@@ -1,4 +1,4 @@
-const { Piloto, Equipo } = require('../models/index');
+const { Piloto, Equipo, GranPremio } = require('../models/index');
 
 const F1Controller = {
   // Controlador para pilotos
