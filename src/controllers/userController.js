@@ -131,7 +131,7 @@ const loginUser = async (req, res) => {
     // Buscar usuario en la base de datos asegurando que la contraseña está incluida
     const user = await Usuario.findOne({
       where: { email },
-      attributes: ['id', 'nombre', 'email', 'contrasena']
+      attributes: ['id', 'nombre', 'email', 'contrasena', 'isAdmin']
     });
 
     if (!user) {
@@ -163,7 +163,8 @@ const loginUser = async (req, res) => {
       usuario: {
         id: datos.id,
         nombre: datos.nombre,
-        email: datos.email
+        email: datos.email,
+        isAdmin: datos.isAdmin
       },
       token
     });
