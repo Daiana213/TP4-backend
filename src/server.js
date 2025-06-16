@@ -31,8 +31,8 @@ app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
 
-// Database connection and server startup
-sequelize.sync().then(() => {
+sequelize.sync({ alter: true }).then(() => {
   console.log('Database connected');
-  app.listen(3001, () => console.log('Server running on port 3000'));
+  app.listen(3001, () => console.log('Server running on port 3001'));
 }).catch(error => console.error('Database error:', error));
+
