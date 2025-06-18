@@ -17,6 +17,7 @@ Piloto.init({
   Podios: DataTypes.INTEGER,
   TotalCarreras: DataTypes.INTEGER,  // Cambiado de 'Carreras' a 'TotalCarreras'
   Wins: DataTypes.INTEGER
+  // Se elimina la definición manual de equipoId
 }, {
   sequelize,
   modelName: 'Piloto'
