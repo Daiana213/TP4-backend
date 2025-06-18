@@ -24,10 +24,7 @@ const EntradaGPUsuario = sequelize.define('EntradaGPUsuario', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  formatoId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
+ 
   UsuarioId: {
     type: DataTypes.INTEGER,
     allowNull: false,

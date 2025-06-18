@@ -49,7 +49,6 @@ exports.crearEntrada = async (req, res) => {
     const nuevaEntrada = await EntradaGPUsuario.create({
       Titulo: req.body.Titulo,
       GranPremioId: req.body.GranPremioId,
-      formatoId: req.body.formatoId,
       resumengeneral: req.body.resumen,
       notaspersonales: req.body.notasPersonales,
       fechacreacion: req.body.fecha,
@@ -79,7 +78,6 @@ exports.actualizarEntrada = async (req, res) => {
     await entrada.update({
       Titulo: req.body.Titulo,
       GranPremioId: req.body.GranPremioId,
-      formatoId: req.body.formatoId,
       resumengeneral: req.body.resumen,
       notaspersonales: req.body.notasPersonales,
       fechacreacion: req.body.fecha,
