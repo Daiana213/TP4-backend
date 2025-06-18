@@ -29,6 +29,7 @@ const F1Controller = {
     }
   },
 
+
   // Controlador para equipos
   getAllEquipos: async (req, res) => {
     try {
@@ -61,7 +62,13 @@ const F1Controller = {
   createPiloto: async (req, res) => {
     try {
       const piloto = await Piloto.create(req.body);
-      res.status(201).json(piloto);
+      
+      // Fetch the newly created pilot with its associated team
+      const pilotoWithEquipo = await Piloto.findByPk(piloto.id, {
+        include: [{ model: Equipo, attributes: ['id', 'Nombre'] }]
+      });
+      
+      res.status(201).json(pilotoWithEquipo);
     } catch (error) {
       console.error('Error al crear piloto:', error);
       res.status(500).json({ message: 'Error al crear piloto' });
@@ -75,17 +82,40 @@ const F1Controller = {
         return res.status(404).json({ message: 'Piloto no encontrado' });
       }
       await piloto.update(req.body);
-      res.json(piloto);
+      
+      // Fetch the updated pilot with its associated team
+      const updatedPiloto = await Piloto.findByPk(req.params.id, {
+        include: [{ model: Equipo, attributes: ['id', 'Nombre'] }]
+      });
+      
+      res.json(updatedPiloto);
     } catch (error) {
       console.error('Error al actualizar piloto:', error);
       res.status(500).json({ message: 'Error al actualizar piloto' });
     }
   },
 
+  deletePiloto: async (req, res) => {
+    try {
+      const { id } = req.params;
+      await Piloto.destroy({ where: { id } });
+      res.json({ message: 'Piloto eliminado correctamente' });
+    } catch (error) {
+      console.error('Error al eliminar piloto:', error);
+      res.status(500).json({ message: 'Error al eliminar piloto' });
+    }
+  },
+
   createEquipo: async (req, res) => {
     try {
       const equipo = await Equipo.create(req.body);
-      res.status(201).json(equipo);
+      
+      // Fetch the newly created team with its associated pilots
+      const equipoWithPilotos = await Equipo.findByPk(equipo.id, {
+        include: [{ model: Piloto, attributes: ['id', 'Nombre', 'Numero'] }]
+      });
+      
+      res.status(201).json(equipoWithPilotos);
     } catch (error) {
       console.error('Error al crear equipo:', error);
       res.status(500).json({ message: 'Error al crear equipo' });
@@ -99,7 +129,13 @@ const F1Controller = {
         return res.status(404).json({ message: 'Equipo no encontrado' });
       }
       await equipo.update(req.body);
-      res.json(equipo);
+      
+      // Fetch the updated team with its associated pilots
+      const updatedEquipo = await Equipo.findByPk(req.params.id, {
+        include: [{ model: Piloto, attributes: ['id', 'Nombre', 'Numero'] }]
+      });
+      
+      res.json(updatedEquipo);
     } catch (error) {
       console.error('Error al actualizar equipo:', error);
       res.status(500).json({ message: 'Error al actualizar equipo' });
@@ -115,6 +151,17 @@ const F1Controller = {
     } catch (error) {
       console.error('Error al obtener grandes premios:', error);
       res.status(500).json({ message: 'Error al obtener grandes premios' });
+    }
+  },
+
+  deleteEquipo: async (req, res) => {
+    try {
+      const { id } = req.params;
+      await Equipo.destroy({ where: { id } });
+      res.json({ message: 'Equipo eliminado correctamente' });
+    } catch (error) {
+      console.error('Error al eliminar equipo:', error);
+      res.status(500).json({ message: 'Error al eliminar equipo' });
     }
   },
 
