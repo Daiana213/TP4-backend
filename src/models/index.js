@@ -7,20 +7,24 @@ const Clasificacion = require('./Clasificacion');
 const Carrera = require('./Carrera');
 const Sprint = require('./Sprint');
 
-// Relaciones
-Usuario.hasMany(EntradaGPUsuario);
-EntradaGPUsuario.belongsTo(Usuario);
+// Definir relaciones entre modelos
 
-GranPremio.hasMany(EntradaGPUsuario);
-EntradaGPUsuario.belongsTo(GranPremio);
+// Relaciones para EntradaGPUsuario
+Usuario.hasMany(EntradaGPUsuario, { foreignKey: 'UsuarioId' });
+EntradaGPUsuario.belongsTo(Usuario, { foreignKey: 'UsuarioId' });
 
-Piloto.hasMany(Clasificacion);
-Piloto.hasMany(Carrera, { as: 'ResultadosCarrera' });  // Especificar un nombre diferente para la asociación
-Piloto.hasMany(Sprint);
+GranPremio.hasMany(EntradaGPUsuario, { foreignKey: 'GranPremioId' });
+EntradaGPUsuario.belongsTo(GranPremio, { foreignKey: 'GranPremioId' });
 
-Equipo.hasMany(Piloto);
-Piloto.belongsTo(Equipo);
+// Relaciones de Piloto con otros modelos
+Piloto.hasMany(Clasificacion, { foreignKey: 'PilotoId' });
+Piloto.hasMany(Carrera, { as: 'ResultadosCarrera', foreignKey: 'PilotoId' });
+Piloto.hasMany(Sprint, { foreignKey: 'PilotoId' });
 
+Equipo.hasMany(Piloto, { foreignKey: 'EquipoId' });
+Piloto.belongsTo(Equipo, { foreignKey: 'EquipoId' });
+
+// Exportar todos los modelos
 module.exports = {
   Usuario,
   EntradaGPUsuario,
