@@ -16,11 +16,17 @@ EntradaGPUsuario.belongsTo(Usuario, { foreignKey: 'UsuarioId' });
 GranPremio.hasMany(EntradaGPUsuario, { foreignKey: 'GranPremioId' });
 EntradaGPUsuario.belongsTo(GranPremio, { foreignKey: 'GranPremioId' });
 
-// Relaciones de Piloto con otros modelos
-Piloto.hasMany(Clasificacion, { foreignKey: 'PilotoId' });
-Piloto.hasMany(Carrera, { as: 'ResultadosCarrera', foreignKey: 'PilotoId' });
-Piloto.hasMany(Sprint, { foreignKey: 'PilotoId' });
+// Relaciones para Carrera, Clasificacion y Sprint con EntradaGPUsuario
+EntradaGPUsuario.hasOne(Carrera, { foreignKey: 'entradaId' });
+Carrera.belongsTo(EntradaGPUsuario, { foreignKey: 'entradaId' });
 
+EntradaGPUsuario.hasOne(Clasificacion, { foreignKey: 'entradaId' });
+Clasificacion.belongsTo(EntradaGPUsuario, { foreignKey: 'entradaId' });
+
+EntradaGPUsuario.hasOne(Sprint, { foreignKey: 'entradaId' });
+Sprint.belongsTo(EntradaGPUsuario, { foreignKey: 'entradaId' });
+
+// Relación principal Piloto-Equipo
 Equipo.hasMany(Piloto, { foreignKey: 'EquipoId' });
 Piloto.belongsTo(Equipo, { foreignKey: 'EquipoId' });
 
