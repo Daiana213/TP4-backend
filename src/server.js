@@ -39,10 +39,10 @@ app.use((req, res) => {
 
 // Conexión a la base de datos y arranque del servidor
 sequelize.sync().then(() => {
-  console.log('✅ Base de datos sincronizada correctamente con el modelo EntradaGPUsuario');
-  app.listen(3001, () => console.log('🚀 Servidor corriendo en puerto 3001'));
+  console.log('Base de datos sincronizada correctamente con el modelo EntradaGPUsuario');
+  app.listen(3001, () => console.log('Servidor corriendo en puerto 3001'));
 }).catch(error => {
-  console.error('❌ Error al sincronizar la base de datos:', error);
+  console.error('Error al sincronizar la base de datos:', error);
 });
 
 // -- ELIMINAR esta línea porque no tiene sentido aquí --

@@ -16,11 +16,19 @@ Piloto.init({
   Campeonatos: DataTypes.INTEGER,
   Podios: DataTypes.INTEGER,
   TotalCarreras: DataTypes.INTEGER,  // Cambiado de 'Carreras' a 'TotalCarreras'
-  Wins: DataTypes.INTEGER
-  // Se elimina la definición manual de equipoId
+  Wins: DataTypes.INTEGER,
+  EquipoId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: 'Equipos',
+      key: 'id'
+    }
+  }
+  
 }, {
   sequelize,
   modelName: 'Piloto'
 });
+
 
 module.exports = Piloto;

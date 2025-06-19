@@ -24,7 +24,11 @@ const EntradaGPUsuario = sequelize.define('EntradaGPUsuario', {
     type: DataTypes.STRING,
     allowNull: false,
   },
- 
+  tieneSprint: {
+    type: DataTypes.BOOLEAN,
+    allowNull: true,
+    defaultValue: false
+  },
   UsuarioId: {
     type: DataTypes.INTEGER,
     allowNull: false,
