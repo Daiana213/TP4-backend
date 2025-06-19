@@ -17,7 +17,7 @@ const EntradaGPUsuario = sequelize.define('EntradaGPUsuario', {
     allowNull: true,
   },
   fechacreacion: {
-    type: DataTypes.DATEONLY, // O DataTypes.DATE si incluye hora
+    type: DataTypes.DATEONLY, 
     allowNull: true,
   },
   Titulo: {
@@ -26,7 +26,6 @@ const EntradaGPUsuario = sequelize.define('EntradaGPUsuario', {
   },
   tieneSprint: {
     type: DataTypes.BOOLEAN,
-    allowNull: true,
     defaultValue: false
   },
   UsuarioId: {

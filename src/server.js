@@ -45,5 +45,4 @@ sequelize.sync().then(() => {
   console.error('Error al sincronizar la base de datos:', error);
 });
 
-// -- ELIMINAR esta línea porque no tiene sentido aquí --
-// const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
