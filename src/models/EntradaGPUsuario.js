@@ -1,22 +1,50 @@
-const { Model, DataTypes } = require('sequelize');
+// src/models/entradaGPUsuario.js
+const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-class EntradaGPUsuario extends Model {}
-
-EntradaGPUsuario.init({
+const EntradaGPUsuario = sequelize.define('EntradaGPUsuario', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
-    autoIncrement: true
+    autoIncrement: true,
   },
-  resumengeneral: DataTypes.STRING,
-  notaspersonales: DataTypes.STRING,
-  fechacreacion: DataTypes.DATE,
-  Titulo: DataTypes.STRING,
-  formatoId: DataTypes.INTEGER
+  resumengeneral: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
+  notaspersonales: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
+  fechacreacion: {
+    type: DataTypes.DATEONLY, // O DataTypes.DATE si incluye hora
+    allowNull: true,
+  },
+  Titulo: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+ 
+  UsuarioId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  GranPremioId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
 }, {
-  sequelize,
-  modelName: 'EntradaGPUsuario'
+  tableName: 'EntradaGPUsuarios', // Respeta mayúsculas/minúsculas según la tabla
+  timestamps: true, // Sequelize gestionará createdAt y updatedAt automáticamente
+  freezeTableName: true, // Para que no pluralice ni cambie el nombre de la tabla
 });
 
 module.exports = EntradaGPUsuario;

@@ -155,7 +155,7 @@ const loginUser = async (req, res) => {
     const token = jwt.sign(
       { userId: datos.id, email: datos.email },
       process.env.JWT_SECRET || 'clave_secreta_temporal',
-      { expiresIn: '24h' }
+      { expiresIn: '1h' }
     );
 
     res.status(200).json({
