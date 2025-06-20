@@ -1,11 +1,14 @@
 const { Piloto, Equipo, GranPremio } = require('../models/index');
 
 const F1Controller = {
-  // Controlador para pilotos
+  // --- PILOTOS ---
+
+  // Obtener todos los pilotos con su equipo
   getAllPilotos: async (req, res) => {
     try {
       const pilotos = await Piloto.findAll({
-        include: [{ model: Equipo, attributes: ['Nombre'] }]
+        include: [{ model: Equipo, attributes: ['Nombre'] }],
+        order: [['Nombre', 'ASC']]
       });
       res.json(pilotos);
     } catch (error) {
@@ -14,6 +17,7 @@ const F1Controller = {
     }
   },
 
+  // Obtener piloto por ID con su equipo
   getPilotoById: async (req, res) => {
     try {
       const piloto = await Piloto.findByPk(req.params.id, {
@@ -29,12 +33,61 @@ const F1Controller = {
     }
   },
 
+  // Crear un nuevo piloto
+  createPiloto: async (req, res) => {
+    try {
+      const piloto = await Piloto.create(req.body);
+      // Traer piloto con equipo para respuesta
+      const pilotoConEquipo = await Piloto.findByPk(piloto.id, {
+        include: [{ model: Equipo, attributes: ['id', 'Nombre'] }]
+      });
+      res.status(201).json(pilotoConEquipo);
+    } catch (error) {
+      console.error('Error al crear piloto:', error);
+      res.status(500).json({ message: 'Error al crear piloto' });
+    }
+  },
 
-  // Controlador para equipos
+  // Actualizar piloto
+  updatePiloto: async (req, res) => {
+    try {
+      const piloto = await Piloto.findByPk(req.params.id);
+      if (!piloto) {
+        return res.status(404).json({ message: 'Piloto no encontrado' });
+      }
+      await piloto.update(req.body);
+      const pilotoActualizado = await Piloto.findByPk(req.params.id, {
+        include: [{ model: Equipo, attributes: ['id', 'Nombre'] }]
+      });
+      res.json(pilotoActualizado);
+    } catch (error) {
+      console.error('Error al actualizar piloto:', error);
+      res.status(500).json({ message: 'Error al actualizar piloto' });
+    }
+  },
+
+  // Eliminar piloto
+  deletePiloto: async (req, res) => {
+    try {
+      const eliminado = await Piloto.destroy({ where: { id: req.params.id } });
+      if (!eliminado) {
+        return res.status(404).json({ message: 'Piloto no encontrado' });
+      }
+      res.json({ message: 'Piloto eliminado correctamente' });
+    } catch (error) {
+      console.error('Error al eliminar piloto:', error);
+      res.status(500).json({ message: 'Error al eliminar piloto' });
+    }
+  },
+
+  // --- EQUIPOS ---
+
+  // Obtener todos los equipos con sus pilotos
   getAllEquipos: async (req, res) => {
     try {
       const equipos = await Equipo.findAll({
-        include: [{ model: Piloto, attributes: ['Nombre', 'Numero'] }]
+        include: [{ model: Piloto, attributes: ['Nombre', 'Numero'] }],
+        order: [['Nombre', 'ASC']]
       });
       res.json(equipos);
     } catch (error) {
@@ -43,6 +96,7 @@ const F1Controller = {
     }
   },
 
+  // Obtener equipo por ID con sus pilotos
   getEquipoById: async (req, res) => {
     try {
       const equipo = await Equipo.findByPk(req.params.id, {
@@ -58,70 +112,21 @@ const F1Controller = {
     }
   },
 
-  // Funciones para el administrador
-  createPiloto: async (req, res) => {
-    try {
-      const piloto = await Piloto.create(req.body);
-      
-      // Fetch the newly created pilot with its associated team
-      const pilotoWithEquipo = await Piloto.findByPk(piloto.id, {
-        include: [{ model: Equipo, attributes: ['id', 'Nombre'] }]
-      });
-      
-      res.status(201).json(pilotoWithEquipo);
-    } catch (error) {
-      console.error('Error al crear piloto:', error);
-      res.status(500).json({ message: 'Error al crear piloto' });
-    }
-  },
-
-  updatePiloto: async (req, res) => {
-    try {
-      const piloto = await Piloto.findByPk(req.params.id);
-      if (!piloto) {
-        return res.status(404).json({ message: 'Piloto no encontrado' });
-      }
-      await piloto.update(req.body);
-      
-      // Fetch the updated pilot with its associated team
-      const updatedPiloto = await Piloto.findByPk(req.params.id, {
-        include: [{ model: Equipo, attributes: ['id', 'Nombre'] }]
-      });
-      
-      res.json(updatedPiloto);
-    } catch (error) {
-      console.error('Error al actualizar piloto:', error);
-      res.status(500).json({ message: 'Error al actualizar piloto' });
-    }
-  },
-
-  deletePiloto: async (req, res) => {
-    try {
-      const { id } = req.params;
-      await Piloto.destroy({ where: { id } });
-      res.json({ message: 'Piloto eliminado correctamente' });
-    } catch (error) {
-      console.error('Error al eliminar piloto:', error);
-      res.status(500).json({ message: 'Error al eliminar piloto' });
-    }
-  },
-
+  // Crear un nuevo equipo
   createEquipo: async (req, res) => {
     try {
       const equipo = await Equipo.create(req.body);
-      
-      // Fetch the newly created team with its associated pilots
-      const equipoWithPilotos = await Equipo.findByPk(equipo.id, {
+      const equipoConPilotos = await Equipo.findByPk(equipo.id, {
         include: [{ model: Piloto, attributes: ['id', 'Nombre', 'Numero'] }]
       });
-      
-      res.status(201).json(equipoWithPilotos);
+      res.status(201).json(equipoConPilotos);
     } catch (error) {
       console.error('Error al crear equipo:', error);
       res.status(500).json({ message: 'Error al crear equipo' });
     }
   },
 
+  // Actualizar equipo
   updateEquipo: async (req, res) => {
     try {
       const equipo = await Equipo.findByPk(req.params.id);
@@ -129,19 +134,33 @@ const F1Controller = {
         return res.status(404).json({ message: 'Equipo no encontrado' });
       }
       await equipo.update(req.body);
-      
-      // Fetch the updated team with its associated pilots
-      const updatedEquipo = await Equipo.findByPk(req.params.id, {
+      const equipoActualizado = await Equipo.findByPk(req.params.id, {
         include: [{ model: Piloto, attributes: ['id', 'Nombre', 'Numero'] }]
       });
-      
-      res.json(updatedEquipo);
+      res.json(equipoActualizado);
     } catch (error) {
       console.error('Error al actualizar equipo:', error);
       res.status(500).json({ message: 'Error al actualizar equipo' });
     }
   },
 
+  // Eliminar equipo
+  deleteEquipo: async (req, res) => {
+    try {
+      const eliminado = await Equipo.destroy({ where: { id: req.params.id } });
+      if (!eliminado) {
+        return res.status(404).json({ message: 'Equipo no encontrado' });
+      }
+      res.json({ message: 'Equipo eliminado correctamente' });
+    } catch (error) {
+      console.error('Error al eliminar equipo:', error);
+      res.status(500).json({ message: 'Error al eliminar equipo' });
+    }
+  },
+
+  // --- GRANDES PREMIOS ---
+
+  // Obtener todos los grandes premios ordenados por fecha ascendente
   getAllGrandesPremios: async (req, res) => {
     try {
       const grandesPremios = await GranPremio.findAll({
@@ -154,17 +173,7 @@ const F1Controller = {
     }
   },
 
-  deleteEquipo: async (req, res) => {
-    try {
-      const { id } = req.params;
-      await Equipo.destroy({ where: { id } });
-      res.json({ message: 'Equipo eliminado correctamente' });
-    } catch (error) {
-      console.error('Error al eliminar equipo:', error);
-      res.status(500).json({ message: 'Error al eliminar equipo' });
-    }
-  },
-
+  // Obtener gran premio por ID
   getGranPremioById: async (req, res) => {
     try {
       const granPremio = await GranPremio.findByPk(req.params.id);
@@ -178,6 +187,7 @@ const F1Controller = {
     }
   },
 
+  // Crear gran premio
   createGranPremio: async (req, res) => {
     try {
       const granPremio = await GranPremio.create(req.body);
@@ -188,6 +198,7 @@ const F1Controller = {
     }
   },
 
+  // Actualizar gran premio
   updateGranPremio: async (req, res) => {
     try {
       const granPremio = await GranPremio.findByPk(req.params.id);
@@ -202,6 +213,7 @@ const F1Controller = {
     }
   },
 
+  // Eliminar gran premio
   deleteGranPremio: async (req, res) => {
     try {
       const granPremio = await GranPremio.findByPk(req.params.id);
