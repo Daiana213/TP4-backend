@@ -11,7 +11,10 @@ Piloto.init({
   },
   Nombre: DataTypes.STRING,
   Numero: DataTypes.INTEGER,
-  Puntos: DataTypes.INTEGER,
+  Puntos: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0
+  },
   Pais: DataTypes.STRING,
   Campeonatos: DataTypes.INTEGER,
   Podios: DataTypes.INTEGER,
