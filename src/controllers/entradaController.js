@@ -1,4 +1,5 @@
 const { EntradaGPUsuario, GranPremio, Carrera, Clasificacion, Sprint } = require('../models');
+const { actualizarPuntos, restarPuntosDeEntrada } = require('./actualizarPuntos');
 
 // Obtener todas las entradas del usuario autenticado con info del Gran Premio y datos de puestos
 exports.getEntradas = async (req, res) => {
@@ -96,6 +97,12 @@ exports.crearEntrada = async (req, res) => {
       });
     }
 
+    // Sumar puntos nuevos (solo sprint y carrera)
+    await actualizarPuntos({
+      sprint: req.body.sprintStandings,
+      carrera: req.body.carreraStandings
+    });
+
     const entradaCompleta = await EntradaGPUsuario.findByPk(nuevaEntrada.id, {
       include: [
         { model: GranPremio, attributes: ['id', 'nombre'] },
@@ -116,12 +123,23 @@ exports.crearEntrada = async (req, res) => {
 exports.actualizarEntrada = async (req, res) => {
   try {
     const entrada = await EntradaGPUsuario.findOne({
-      where: { id: req.params.id, UsuarioId: req.usuarioId }
+      where: { id: req.params.id, UsuarioId: req.usuarioId },
+      include: [
+        { model: Carrera, attributes: ['standings'], required: false },
+        { model: Sprint, attributes: ['standings'], required: false }
+      ]
     });
 
     if (!entrada) {
       return res.status(404).json({ error: 'Entrada no encontrada' });
     }
+
+    // Obtener standings viejos (sólo sprint y carrera suman puntos)
+    const carreraPrev = entrada.Carrera ? JSON.parse(entrada.Carrera.standings) : [];
+    const sprintPrev = entrada.Sprint ? JSON.parse(entrada.Sprint.standings) : [];
+
+    // Restar puntos viejos
+    await restarPuntosDeEntrada({ sprint: sprintPrev, carrera: carreraPrev });
 
     await entrada.update({
       Titulo: req.body.Titulo,
@@ -132,29 +150,44 @@ exports.actualizarEntrada = async (req, res) => {
       tieneSprint: req.body.tieneSprint
     });
 
+    // Actualizar o eliminar Carrera
     if (req.body.carreraStandings?.length > 0) {
       const [carrera] = await Carrera.findOrCreate({
         where: { entradaId: entrada.id },
         defaults: { standings: JSON.stringify(req.body.carreraStandings), entradaId: entrada.id }
       });
       await carrera.update({ standings: JSON.stringify(req.body.carreraStandings) });
+    } else {
+      await Carrera.destroy({ where: { entradaId: entrada.id } });
     }
 
+    // Actualizar o eliminar Clasificacion
     if (req.body.clasificacionStandings?.length > 0) {
       const [clasificacion] = await Clasificacion.findOrCreate({
         where: { entradaId: entrada.id },
         defaults: { standings: JSON.stringify(req.body.clasificacionStandings), entradaId: entrada.id }
       });
       await clasificacion.update({ standings: JSON.stringify(req.body.clasificacionStandings) });
+    } else {
+      await Clasificacion.destroy({ where: { entradaId: entrada.id } });
     }
 
+    // Actualizar o eliminar Sprint
     if (req.body.tieneSprint && req.body.sprintStandings?.length > 0) {
       const [sprint] = await Sprint.findOrCreate({
         where: { entradaId: entrada.id },
         defaults: { standings: JSON.stringify(req.body.sprintStandings), entradaId: entrada.id }
       });
       await sprint.update({ standings: JSON.stringify(req.body.sprintStandings) });
+    } else {
+      await Sprint.destroy({ where: { entradaId: entrada.id } });
     }
+
+    // Sumar puntos nuevos (solo sprint y carrera)
+    await actualizarPuntos({
+      sprint: req.body.sprintStandings,
+      carrera: req.body.carreraStandings
+    });
 
     const entradaActualizada = await EntradaGPUsuario.findByPk(entrada.id, {
       include: [
@@ -180,11 +213,21 @@ exports.eliminarEntrada = async (req, res) => {
         id: req.params.id,
         UsuarioId: req.usuarioId,
       },
+      include: [
+        { model: Carrera, attributes: ['standings'], required: false },
+        { model: Sprint, attributes: ['standings'], required: false }
+      ]
     });
 
     if (!entrada) {
       return res.status(404).json({ error: 'Entrada no encontrada' });
     }
+
+    const carreraPrev = entrada.Carrera ? JSON.parse(entrada.Carrera.standings) : [];
+    const sprintPrev = entrada.Sprint ? JSON.parse(entrada.Sprint.standings) : [];
+
+    // Restar puntos viejos
+    await restarPuntosDeEntrada({ sprint: sprintPrev, carrera: carreraPrev });
 
     await Carrera.destroy({ where: { entradaId: entrada.id } });
     await Clasificacion.destroy({ where: { entradaId: entrada.id } });
