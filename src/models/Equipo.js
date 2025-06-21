@@ -10,10 +10,7 @@ Equipo.init({
     autoIncrement: true
   },
   Nombre: DataTypes.STRING,
-  Puntos: {
-    type: DataTypes.INTEGER,
-    defaultValue: 0
-  },
+  Puntos: DataTypes.INTEGER,
   Podios: DataTypes.INTEGER,
   Carreras: DataTypes.INTEGER,
   Wins: DataTypes.INTEGER,
