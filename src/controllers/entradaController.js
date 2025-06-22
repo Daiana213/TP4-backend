@@ -66,6 +66,38 @@ exports.getEntradaPorId = async (req, res) => {
 // Crear entrada con datos de puestos
 exports.crearEntrada = async (req, res) => {
   try {
+    // Validación 1: ya existe entrada para este GP y este usuario
+    const yaExiste = await EntradaGPUsuario.findOne({
+      where: {
+        UsuarioId: req.usuarioId,
+        GranPremioId: req.body.GranPremioId
+      }
+    });
+
+    if (yaExiste) {
+      return res.status(400).json({ error: 'Ya existe una entrada para este Gran Premio.' });
+    }
+
+    // Validación 2: el usuario debe haber creado la entrada del GP anterior
+    const gpsOrdenados = await GranPremio.findAll({ order: [['id', 'ASC']] });
+    const indexActual = gpsOrdenados.findIndex(gp => gp.id === req.body.GranPremioId);
+
+    if (indexActual > 0) {
+      const idGPAnterior = gpsOrdenados[indexActual - 1].id;
+
+      const entradaAnterior = await EntradaGPUsuario.findOne({
+        where: {
+          UsuarioId: req.usuarioId,
+          GranPremioId: idGPAnterior
+        }
+      });
+
+      if (!entradaAnterior) {
+        return res.status(400).json({ error: 'Debes crear primero la entrada del Gran Premio anterior.' });
+      }
+    }
+
+    // Si pasa las validaciones, se crea la entrada
     const nuevaEntrada = await EntradaGPUsuario.create({
       Titulo: req.body.Titulo,
       GranPremioId: req.body.GranPremioId,
@@ -97,7 +129,6 @@ exports.crearEntrada = async (req, res) => {
       });
     }
 
-    // Sumar puntos nuevos (solo sprint y carrera)
     await actualizarPuntos({
       sprint: req.body.sprintStandings,
       carrera: req.body.carreraStandings
