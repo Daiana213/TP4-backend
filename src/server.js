@@ -5,7 +5,7 @@ const sequelize = require('./config/database');
 const userRoutes = require('./routes/userRoutes');
 const f1Routes = require('./routes/f1Routes');
 const entradaRoutes = require('./routes/entrada.routes');
-const authMiddleware = require('./middlewares/authMiddleware');
+const { authenticateToken } = require('./middlewares/authMiddleware');
 
 const app = express();
 
@@ -21,7 +21,7 @@ app.use('/', userRoutes); // login, registro, etc.
 app.use('/', f1Routes);   // rutas públicas de F1
 
 // Rutas protegidas
-app.use('/api/entradas', authMiddleware, entradaRoutes);
+app.use('/api/entradas', authenticateToken, entradaRoutes);
 
 // Middleware de manejo de errores
 app.use((err, req, res, next) => {
