@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const F1Controller = require('../controllers/f1Controller');
+const { authenticateToken, isAdmin } = require('../middlewares/authMiddleware');
 
 // Rutas para pilotos
 router.get('/pilotos', F1Controller.getAllPilotos);
@@ -14,15 +15,15 @@ router.get('/equipos/:id', F1Controller.getEquipoById);
 router.get('/calendario', F1Controller.getAllGrandesPremios);
 router.get('/calendario/:id', F1Controller.getGranPremioById);
 
-// Rutas para administrador
-router.post('/admin/pilotos', F1Controller.createPiloto);
-router.put('/admin/pilotos/:id', F1Controller.updatePiloto);
-router.delete('/admin/pilotos/:id', F1Controller.deletePiloto);
-router.post('/admin/equipos', F1Controller.createEquipo);
-router.put('/admin/equipos/:id', F1Controller.updateEquipo);
-router.delete('/admin/equipos/:id', F1Controller.deleteEquipo);
-router.post('/admin/calendario', F1Controller.createGranPremio);
-router.put('/admin/calendario/:id', F1Controller.updateGranPremio);
-router.delete('/admin/calendario/:id', F1Controller.deleteGranPremio);
+// Rutas para administrador (requieren autenticación y rol admin)
+router.post('/admin/pilotos', authenticateToken, isAdmin, F1Controller.createPiloto);
+router.put('/admin/pilotos/:id', authenticateToken, isAdmin, F1Controller.updatePiloto);
+router.delete('/admin/pilotos/:id', authenticateToken, isAdmin, F1Controller.deletePiloto);
+router.post('/admin/equipos', authenticateToken, isAdmin, F1Controller.createEquipo);
+router.put('/admin/equipos/:id', authenticateToken, isAdmin, F1Controller.updateEquipo);
+router.delete('/admin/equipos/:id', authenticateToken, isAdmin, F1Controller.deleteEquipo);
+router.post('/admin/calendario', authenticateToken, isAdmin, F1Controller.createGranPremio);
+router.put('/admin/calendario/:id', authenticateToken, isAdmin, F1Controller.updateGranPremio);
+router.delete('/admin/calendario/:id', authenticateToken, isAdmin, F1Controller.deleteGranPremio);
 
 module.exports = router;

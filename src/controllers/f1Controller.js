@@ -190,7 +190,38 @@ const F1Controller = {
   // Crear gran premio
   createGranPremio: async (req, res) => {
     try {
-      const granPremio = await GranPremio.create(req.body);
+      const { nombre, fecha, circuito, pais, numero_vueltas, horarios } = req.body;
+
+      // Validaciones
+      if (!nombre || !fecha || !circuito || !pais) {
+        return res.status(400).json({ message: 'Todos los campos son requeridos' });
+      }
+
+      // Validar fecha
+      const fechaCarrera = new Date(fecha);
+      if (isNaN(fechaCarrera.getTime())) {
+        return res.status(400).json({ message: 'Fecha inválida' });
+      }
+
+      // Validar horario
+      if (horarios < 0 || horarios > 23) {
+        return res.status(400).json({ message: 'El horario debe estar entre 0 y 23' });
+      }
+
+      // Validar número de vueltas
+      if (numero_vueltas < 1) {
+        return res.status(400).json({ message: 'El número de vueltas debe ser mayor a 0' });
+      }
+
+      const granPremio = await GranPremio.create({
+        nombre,
+        fecha: fechaCarrera,
+        circuito,
+        pais,
+        numero_vueltas: Number(numero_vueltas) || 0,
+        horarios: Number(horarios) || 0
+      });
+      
       res.status(201).json(granPremio);
     } catch (error) {
       console.error('Error al crear gran premio:', error);
@@ -205,7 +236,39 @@ const F1Controller = {
       if (!granPremio) {
         return res.status(404).json({ message: 'Gran Premio no encontrado' });
       }
-      await granPremio.update(req.body);
+
+      const { nombre, fecha, circuito, pais, numero_vueltas, horarios } = req.body;
+
+      // Validaciones
+      if (!nombre || !fecha || !circuito || !pais) {
+        return res.status(400).json({ message: 'Todos los campos son requeridos' });
+      }
+
+      // Validar fecha
+      const fechaCarrera = new Date(fecha);
+      if (isNaN(fechaCarrera.getTime())) {
+        return res.status(400).json({ message: 'Fecha inválida' });
+      }
+
+      // Validar horario
+      if (horarios < 0 || horarios > 23) {
+        return res.status(400).json({ message: 'El horario debe estar entre 0 y 23' });
+      }
+
+      // Validar número de vueltas
+      if (numero_vueltas < 1) {
+        return res.status(400).json({ message: 'El número de vueltas debe ser mayor a 0' });
+      }
+
+      await granPremio.update({
+        nombre,
+        fecha: fechaCarrera,
+        circuito,
+        pais,
+        numero_vueltas: Number(numero_vueltas) || 0,
+        horarios: Number(horarios) || 0
+      });
+      
       res.json(granPremio);
     } catch (error) {
       console.error('Error al actualizar gran premio:', error);
