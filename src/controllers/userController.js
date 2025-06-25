@@ -98,7 +98,7 @@ const validateUser = async (req, res) => {
 
     const user = await Usuario.findOne({
       where: { email },
-      attributes: ['id', 'nombre', 'email', 'contrasena'] // Asegurar que la contraseña se incluya
+      attributes: ['id', 'nombre', 'email', 'contrasena'] 
     });
 
     if (!user || !user.contrasena) {
@@ -148,7 +148,7 @@ const loginUser = async (req, res) => {
     // Comparación segura de contraseñas con bcrypt
     const isPasswordValid = await bcrypt.compare(contrasena, datos.contrasena);
     if (!isPasswordValid) {
-      return res.status(401).json({ error: 'Credenciales inválidas' });
+      return res.status(401).json({ error: 'Email o contraseña incorrecta' });
     }
 
     // Generar token JWT
